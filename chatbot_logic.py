@@ -15,7 +15,7 @@ file_path = 'Syntheic_Data.xlsx'  # Ensure the dataset path is correct
 df = pd.read_excel(file_path)
 
 # Set up OpenAI API Key
-openai.api_key = "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"  # Replace with your OpenAI API key
+openai.api_key = "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"  # Replace with your OpenAI API key
 
 
 def preprocess_query(user_query):
@@ -69,10 +69,11 @@ def truncate_text(text, max_length=20):
 
 def nlp_query_response(df, user_query):
     """
-    Processes the user's natural language query and returns the result as a formatted list or graph.
+    Processes the user's natural language query and returns the result as a formatted list, graph, or OpenAI-generated response.
     """
     user_query = user_query.lower().strip()  # Normalize to lowercase and trim spaces
 
+    # Handle queries for top vendors
     if "generate the top" in user_query:
         try:
             # Extract the number of top vendors (e.g., "top 5", "top 10")
@@ -82,42 +83,32 @@ def nlp_query_response(df, user_query):
         except ValueError:
             num = 5  # Default to top 5 if not specified
 
-        # Generate results for price
         if "price" in user_query:
             sorted_df = df.sort_values(by="Current Price Q2 unit $").head(num)
             if not sorted_df.empty:
-                # Create a list of vendors
                 result_list = [
                     f"{idx + 1}) {row['Vendor']}, ${row['Current Price Q2 unit $']:.2f}"
                     for idx, (_, row) in enumerate(sorted_df.iterrows())
                 ]
                 return f"Here are the top {num} vendors by lowest price:\n" + "\n".join(result_list)
 
-        # Generate results for lead time
         elif "lead time" in user_query:
             sorted_df = df.sort_values(by="Lead Time (wks)").head(num)
             if not sorted_df.empty:
-                # Create a list of vendors
                 result_list = [
                     f"{idx + 1}) {row['Vendor']}, {row['Lead Time (wks)']} weeks"
                     for idx, (_, row) in enumerate(sorted_df.iterrows())
                 ]
                 return f"Here are the top {num} vendors by shortest lead time:\n" + "\n".join(result_list)
 
-        # Generate results for MOQ
-        elif "moq" in user_query:
-            sorted_df = df.sort_values(by="MOQ (Lbs)").head(num)
-            if not sorted_df.empty:
-                # Create a list of vendors
-                result_list = [
-                    f"{idx + 1}) {row['Vendor']}, {row['MOQ (Lbs)']} lbs"
-                    for idx, (_, row) in enumerate(sorted_df.iterrows())
-                ]
-                return f"Here are the top {num} vendors by MOQ:\n" + "\n".join(result_list)
-
-        else:
-            # Fallback for unsupported queries
-            return "Please specify whether to sort by 'price', 'lead time', or 'MOQ'."
+    elif "shortest lead time" in user_query or "lead times" in user_query:
+        sorted_df = df.sort_values(by="Lead Time (wks)").head(10)
+        if not sorted_df.empty:
+            result_list = [
+                f"{idx + 1}) {row['Vendor']}, {row['Lead Time (wks)']} weeks"
+                for idx, (_, row) in enumerate(sorted_df.iterrows())
+            ]
+            return "Here is a list of vendors with the shortest lead times:\n" + "\n".join(result_list)
 
     elif "lowest price" in user_query:
         # Find the supplier with the lowest price for a specific INCI
@@ -146,8 +137,38 @@ def nlp_query_response(df, user_query):
         graph = generate_graph(df, "Vendor", "MOQ (Lbs)", "Vendor MOQ Graph")
         return {"response": "Generated an MOQ graph.", "graph": graph}
 
+    elif "moq trends" in user_query or "trends in moq" in user_query:
+        avg_moq = df["MOQ (Lbs)"].mean()
+        max_moq = df["MOQ (Lbs)"].max()
+        min_moq = df["MOQ (Lbs)"].min()
+        return (f"The MOQ trends show an average MOQ of {avg_moq:.2f} lbs, "
+                f"a maximum of {max_moq} lbs, and a minimum of {min_moq} lbs.")
+
+    # Fallback for unstructured queries (leveraging OpenAI)
+    # Fallback for unstructured queries (leveraging OpenAI)
     else:
-        return "No matching suppliers found for your query."
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": f"You are an assistant that provides insights based on the following dataset columns: {', '.join(df.columns)}."
+                    },
+                    {
+                        "role": "user",
+                        "content": user_query
+                    }
+                ],
+                max_tokens=150,
+                temperature=0.7
+            )
+            return response.choices[0].message["content"].strip()
+        except Exception as e:
+            return f"Error communicating with OpenAI: {e}"
+
+
+
 
 
 def chatbot():
