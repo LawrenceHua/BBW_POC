@@ -10,8 +10,13 @@ df = pd.read_excel(file_path)
 
 @app.route('/')
 def home():
-    """Render the homepage."""
-    return render_template('index.html')
+    """Render the homepage with example queries."""
+    example_queries = [
+        "Generate the top 5 vendors by price",
+        "Generate a price graph",
+        "What is the lowest price for Cocamidopropyl Betaine?"
+    ]
+    return render_template('index.html', examples=example_queries)
 
 @app.route('/query', methods=['POST'])
 def query():
@@ -33,4 +38,4 @@ def query():
     return jsonify({"response": response})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=7005)
+    app.run(debug=True, port=7010)
