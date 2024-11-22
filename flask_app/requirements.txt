@@ -1,0 +1,6 @@
+flask
+pandas
+matplotlib
+openai
+openpyxl
+tabulate
