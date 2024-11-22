@@ -15,8 +15,7 @@ file_path = 'Syntheic_Data.xlsx'  # Ensure the dataset path is correct
 df = pd.read_excel(file_path)
 
 # Set up OpenAI API Key
-openai.api_key = "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"  # Replace with your OpenAI API key
-
+openai.api_key = ""
 
 def preprocess_query(user_query):
     """
