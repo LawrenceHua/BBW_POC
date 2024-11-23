@@ -165,8 +165,8 @@ def nlp_query_response(df, user_query):
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are a data scientist using supplier data to provide insights. when making the decisions for ranking, you look at the weights price (70%), MOQ (20%), and lead time (10%)."
-                               f"Don't explain how, just provide concise answers within 200 tokens. "
+                    "content": f"You are a data scientist using supplier data to provide insights. When making the decisions for ranking, you look at the weights price (70%), MOQ (20%), and lead time (10%)."
+                               f"Don't explain how, just provide concise answers within 200 tokens. Provide formatted and clear answers, but again, have them be concise"
                                f"Dataset summary:\n{dataset_summary}"
                 },
                 {"role": "user", "content": user_query}
