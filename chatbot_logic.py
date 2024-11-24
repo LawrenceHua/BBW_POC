@@ -5,7 +5,7 @@ import base64
 import openai
 
 # Set up OpenAI API Key
-openai.api_key = "sk-proj--a-_Otm3E8qJh3cA"
+openai.api_key = ""
 
 # Use non-GUI backend for Matplotlib
 plt.switch_backend('Agg')
@@ -118,10 +118,15 @@ def nlp_query_response(df, user_query):
                             for idx, (_, row) in enumerate(sorted_df.iterrows())])
         return f"Here are the top {num_vendors} vendors by price:\n{result}"
 
-    if "generate a price graph" in user_query:
+    if "generate price, moq, and lead time bar graphs" in user_query:
         sorted_df = df.sort_values(by="Current Price Q2 unit $").drop_duplicates(subset="Vendor").head(10)
-        graph = generate_graph(sorted_df, "Vendor", "Current Price Q2 unit $", "Price Graph")
-        return {"response": "Generated a price graph.", "graphs": {"dashboard_1": graph}}
+        graphs = {
+            "dashboard_1": generate_graph(sorted_df, "Vendor", "Current Price Q2 unit $", "Price Graph", kind="bar"),
+            "dashboard_2": generate_graph(sorted_df, "Vendor", "MOQ (Lbs)", "MOQ Graph", kind="bar"),
+            "dashboard_3": generate_graph(sorted_df, "Vendor", "Lead Time (wks)", "Lead Time Graph", kind="bar")
+        }
+        return {"response": "Generated price, MOQ, and lead time bar graphs.", "graphs": graphs}
+
 
     if "scatter plots" in user_query:
         metrics = {
@@ -134,19 +139,55 @@ def nlp_query_response(df, user_query):
             return "Please specify metrics like price, MOQ, or lead time for the scatter plots."
 
         graphs = {}
-        for i, metric in enumerate(requested_metrics):
-            graph = generate_graph(df.drop_duplicates(subset="Vendor").head(10),
-                                   "Vendor", metrics[metric], f"{metric.title()} Scatter Plot", kind="scatter")
+        
+        # If all three metrics are requested, generate individual scatter plots
+        if len(requested_metrics) == 3:
+            for i, metric in enumerate(requested_metrics):
+                graph = generate_graph(
+                    df.drop_duplicates(subset="Vendor").head(10),
+                    "Vendor", metrics[metric], f"{metric.title()} Scatter Plot", kind="scatter"
+                )
+                if graph:
+                    graphs[f"dashboard_{i + 1}"] = graph
+            return {"response": "Here are your scatter plots for price, MOQ, and lead time.", "graphs": graphs}
+
+        # If two metrics are requested, generate a combined scatter plot
+        elif len(requested_metrics) == 2:
+            # Generate individual scatter plots for each metric
+            for i, metric in enumerate(requested_metrics):
+                graph = generate_graph(
+                    df.drop_duplicates(subset="Vendor").head(10),
+                    "Vendor", metrics[metric], f"{metric.title()} Scatter Plot", kind="scatter"
+                )
+                if graph:
+                    graphs[f"dashboard_{i + 1}"] = graph
+
+            # Generate the combined scatter plot
+            combined_graph = create_combined_graph(
+                df.drop_duplicates(subset="Vendor").head(10),
+                metrics[requested_metrics[0]], metrics[requested_metrics[1]],
+                f"Combined: {requested_metrics[0].title()} vs {requested_metrics[1].title()}"
+            )
+            if combined_graph:
+                graphs["dashboard_3"] = combined_graph
+
+            return {
+                "response": f"Here are your scatter plots for {requested_metrics[0].title()}, {requested_metrics[1].title()}, and their combination.",
+                "graphs": graphs
+            }
+
+        # If only one metric is mentioned, generate a single scatter plot
+        elif len(requested_metrics) == 1:
+            graph = generate_graph(
+                df.drop_duplicates(subset="Vendor").head(10),
+                "Vendor", metrics[requested_metrics[0]], f"{requested_metrics[0].title()} Scatter Plot", kind="scatter"
+            )
             if graph:
-                graphs[f"dashboard_{i + 1}"] = graph
+                graphs["dashboard_1"] = graph
+            return {"response": f"Here is your scatter plot for {requested_metrics[0].title()}.", "graphs": graphs}
 
-        if len(requested_metrics) > 1:
-            combined_graph = create_combined_graph(df.drop_duplicates(subset="Vendor").head(10),
-                                                   metrics[requested_metrics[0]], metrics[requested_metrics[1]],
-                                                   f"Combined: {requested_metrics[0].title()} vs {requested_metrics[1].title()}")
-            graphs["dashboard_3"] = combined_graph
-
-        return {"response": "Here are your scatter plots for the requested metrics.", "graphs": graphs}
+        # Fallback for unexpected cases
+        return "Unable to process the scatter plot request. Please check your query."
 
     if "lowest price for" in user_query:
         material = user_query.split("for")[-1].strip()
@@ -163,17 +204,26 @@ def nlp_query_response(df, user_query):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {
+                 {
                     "role": "system",
-                    "content": f"You are a data scientist using supplier data to provide insights. When making the decisions for ranking, you look at the weights price (70%), MOQ (20%), and lead time (10%)."
-                               f"Don't explain how, just provide concise answers within 200 tokens. Provide formatted and clear answers, but again, have them be concise"
-                               f"Dataset summary:\n{dataset_summary}"
+                    "content": f"You are a highly intelligent and knowledgeable data scientist working for Bath & Body Works. "
+                    f"Your role is to analyze supplier data and provide actionable, data-driven insights to optimize procurement decisions. "
+                    f"All decisions for ranking or recommendations should consider the weights: price (70%), MOQ (20%), and lead time (10%). "
+                    f"You should answer user queries concisely within 250 tokens, presenting well-structured and formatted responses. "
+                    f"Use bullet points, numbered lists, or short paragraphs as appropriate to improve clarity. "
+                    f"Base your analysis strictly on the data provided in the dataset summary, but you may incorporate relevant industry best practices "
+                    f"and general knowledge from the internet to add value when needed. "
+                    f"Always refer to vendors explicitly by their names listed in the dataset (e.g., 'Vendor ABC'). "
+                    f"Do not use placeholders or generic terms like 'Vendor X' or 'Vendor Y.' "
+                    f"Focus on providing clear, actionable insights tailored to the needs of Bath & Body Works. "
+                    f"\n\nDataset Summary:\n{dataset_summary}"
                 },
                 {"role": "user", "content": user_query}
             ],
-            max_tokens=200,
+            max_tokens=250,
             temperature=0.7
         )
         return response.choices[0].message["content"].strip()
     except Exception as e:
         return f"Error communicating with OpenAI: {e}"
+
