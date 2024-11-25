@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBW Supplier Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Remove bullet points for subsection headers */
+        .bot.example-queries li.no-bullet {
+            list-style-type: none;
+        }
+
+        /* Sticky note styles */
+        #example-queries-note {
+            position: fixed;
+            top: 20px;
+            left: 10px;
+            width: 200px;
+            padding: 10px;
+            background-color: #f9f9a0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-left: 220px; /* Offset to ensure content doesn't overlap the sticky note */
+        }
+
+        #chat-section {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #dashboard-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .dashboard {
+            text-align: center;
+        }
+
+        .dashboard img {
+            width: 100%;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>BBW Supplier Recommendation Tool</h1>
+    </header>
+    
+    <div id="example-queries-note">
+        <h3 style="font-size: 14px; margin-bottom: 10px;">Example Queries</h3>
+        <ul class="example-queries">
+            <li class="no-bullet"><b>Structured Queries:</b></li>
+            <li>Generate the top 5 vendors by price</li>
+            <li>What is the lowest price for Cocamidopropyl Betaine?</li>
+            <li>Rank suppliers where my unit price expected is $0.50</li>
+            <li>I need suppliers with lower than 4 weeks lead time</li>
+            <li class="no-bullet"><b>Unstructured Queries:</b></li>
+            <li>Would there be any potential risks if I want to proceed with Stepan (Bulk)?</li>
+            <li>Show me suppliers that are aligned with BBW environment initiatives</li>
+            <li>Summarize the data</li>
+            <li class="no-bullet"><b>Visual Queries:</b></li>
+            <li>Show me scatter plots for price, MOQ, and lead time</li>
+            <li>Show me scatter plots for comparing price and lead time</li>
+            <li>Generate price, moq, and lead time bar graphs</li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Chat Section -->
+        <div id="chat-section">
+            <div id="chat-messages">
+                <div class="bot">Hi! Welcome to the BBW RFQ Chatbot!</div>
+            </div>
+            <div id="chat-input">
+                <input type="text" id="user-query" placeholder="Type your message..." />
+                <button id="send-query">Send</button>
+            </div>
+        </div>
+
+        <!-- Graph Section -->
+        <div id="dashboard-section">
+            <div class="dashboard" id="dashboard-1">
+                <h2>Dashboard 1</h2>
+                <img id="graph-output-1" src="" alt="Graph will appear here" />
+            </div>
+            <div class="dashboard" id="dashboard-2">
+                <h2>Dashboard 2</h2>
+                <img id="graph-output-2" src="" alt="Graph will appear here" />
+            </div>
+            <div class="dashboard" id="dashboard-3">
+                <h2>Dashboard 3</h2>
+                <img id="graph-output-3" src="" alt="Graph will appear here" />
+            </div>
+        </div>        
+    </main>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

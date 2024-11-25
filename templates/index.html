@@ -3,58 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BBW Supplier Tool</title>
+    <title>Supplier Ranking and Scorecard Tool</title>
     <link rel="stylesheet" href="/static/css/styles.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function toggleOptionalFields() {
+            const criterionSelect = document.getElementById('criterion');
+            const optionalFields = document.getElementById('optional-fields');
+
+            if (criterionSelect.value === 'score') {
+                optionalFields.style.display = 'block';
+            } else {
+                optionalFields.style.display = 'none';
+            }
+        }
+    </script>
     <style>
-        /* Remove bullet points for subsection headers */
-        .bot.example-queries li.no-bullet {
-            list-style-type: none;
+        #ranking-section {
+            width: 85%;
+            max-width: 800px;
+            background-color: #ffffff; /* White */
+            border: 3px solid #005f73; /* Blue border */
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* Sticky note styles */
-        #example-queries-note {
-            position: fixed;
-            top: 20px;
-            left: 10px;
-            width: 200px;
+        #ranking-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        #ranking-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            color: #005f73; /* Blue */
+        }
+
+        #ranking-form input,
+        #ranking-form select {
             padding: 10px;
-            background-color: #f9f9a0;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-left: 220px; /* Offset to ensure content doesn't overlap the sticky note */
-        }
-
-        #chat-section {
-            flex: 1;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        #dashboard-section {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-around;
+            border: 2px solid #005f73; /* Blue border */
+            border-radius: 10px;
+            font-size: 16px;
             width: 100%;
-            max-width: 1200px;
         }
 
-        .dashboard {
+        #ranking-form input[type="submit"] {
+            background-color: #f42794; /* Bright pink */
+            color: #ffffff; /* White text */
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #ranking-form input[type="submit"]:hover {
+            background-color: #d41e80; /* Darker pink */
+        }
+
+        .button-section {
             text-align: center;
+            margin-top: 20px;
         }
 
-        .dashboard img {
-            width: 100%;
-            max-width: 300px;
+        .button-section a {
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background-color: #005f73; /* Blue */
+            color: #ffffff; /* White text */
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .button-section a:hover {
+            background-color: #004c60; /* Darker blue */
+        }
+
+        .chart-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px; /* Added padding */
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -62,55 +99,81 @@
     <header>
         <h1>BBW Supplier Recommendation Tool</h1>
     </header>
-    
-    <div id="example-queries-note">
-        <h3 style="font-size: 14px; margin-bottom: 10px;">Example Queries</h3>
-        <ul class="example-queries">
-            <li class="no-bullet"><b>Structured Queries:</b></li>
-            <li>Generate the top 5 vendors by price</li>
-            <li>What is the lowest price for Cocamidopropyl Betaine?</li>
-            <li>Rank suppliers where my unit price expected is $0.50</li>
-            <li>I need suppliers with lower than 4 weeks lead time</li>
-            <li class="no-bullet"><b>Unstructured Queries:</b></li>
-            <li>Would there be any potential risks if I want to proceed with Stepan (Bulk)?</li>
-            <li>Show me suppliers that are aligned with BBW environment initiatives</li>
-            <li>Summarize the data</li>
-            <li class="no-bullet"><b>Visual Queries:</b></li>
-            <li>Show me scatter plots for price, MOQ, and lead time</li>
-            <li>Show me scatter plots for comparing price and lead time</li>
-            <li>Generate price, moq, and lead time bar graphs</li>
-        </ul>
-    </div>
 
     <main>
-        <!-- Chat Section -->
-        <div id="chat-section">
-            <div id="chat-messages">
-                <div class="bot">Hi! Welcome to the BBW RFQ Chatbot!</div>
+        <div id="ranking-section">
+            <form method="post" id="ranking-form">
+                <div class="form-group">
+                    <label for="inci_name">Enter the INCI (raw material):</label>
+                    <input type="text" id="inci_name" name="inci_name" required placeholder="e.g., Cocamidopropyl Betaine">
+                </div>
+
+                <div class="form-group">
+                    <label for="criterion">Select Criterion to Rank Suppliers:</label>
+                    <select id="criterion" name="criterion" required onchange="toggleOptionalFields()">
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="price">Price</option>
+                        <option value="lead_time">Lead Time</option>
+                        <option value="moq">MOQ</option>
+                        <option value="score">Overall Score (Price, Lead Time, MOQ)</option>
+                    </select>
+                </div>
+
+                <div id="optional-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="price_limit">Enter Maximum Price (optional):</label>
+                        <input type="number" id="price_limit" name="price_limit" step="0.01" placeholder="e.g., 10.0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lead_time_limit">Enter Maximum Lead Time (weeks, optional):</label>
+                        <input type="number" id="lead_time_limit" name="lead_time_limit" placeholder="e.g., 4">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="moq_limit">Enter Maximum MOQ (lbs, optional):</label>
+                        <input type="number" id="moq_limit" name="moq_limit" placeholder="e.g., 100">
+                    </div>
+                </div>
+
+                <input type="submit" value="Rank Suppliers">
+            </form>
+
+            {% if results %}
+            <div class="results-container">
+                <h3>Top 10 Suppliers Ranked by {{ criterion | title }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Vendor</th>
+                            <th>INCI</th>
+                            <th>{{ column_name }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results %}
+                        <tr>
+                            <td>{{ row['Rank'] }}</td>
+                            <td>{{ row['Vendor'] }}</td>
+                            <td>{{ row['INCI'] }}</td>
+                            <td>{{ row[column_name] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div id="chat-input">
-                <input type="text" id="user-query" placeholder="Type your message..." />
-                <button id="send-query">Send</button>
+
+            <div class="chart-container">
+                <h3>Visualization:</h3>
+                <img src="{{ url_for('chart_png', inci_name=request.form['inci_name'], criterion=request.form['criterion']) }}" alt="Chart for Supplier Data">
             </div>
+            {% endif %}
         </div>
 
-        <!-- Graph Section -->
-        <div id="dashboard-section">
-            <div class="dashboard" id="dashboard-1">
-                <h2>Dashboard 1</h2>
-                <img id="graph-output-1" src="" alt="Graph will appear here" />
-            </div>
-            <div class="dashboard" id="dashboard-2">
-                <h2>Dashboard 2</h2>
-                <img id="graph-output-2" src="" alt="Graph will appear here" />
-            </div>
-            <div class="dashboard" id="dashboard-3">
-                <h2>Dashboard 3</h2>
-                <img id="graph-output-3" src="" alt="Graph will appear here" />
-            </div>
-        </div>        
+        <div class="button-section">
+            <a href="{{ url_for('chat') }}">Chat with our AI Assistant</a>
+        </div>
     </main>
-
-    <script src="/static/js/app.js"></script>
 </body>
 </html>
