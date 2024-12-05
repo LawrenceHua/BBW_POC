@@ -18,7 +18,7 @@ Welcome to the **BBW Recommendation Tool**! This application integrates AI-power
    [chatbot_logic.py#L8](https://github.com/LawrenceHua/BBW_POC/blob/main/chatbot_logic.py#L8)
 
 ### **Installation**
-1. Open your terminal and run:
+1. After cloning, Open your terminal and run:
    ```bash
    python -r requirements.txt
    ```
