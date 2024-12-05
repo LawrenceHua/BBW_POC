@@ -11,7 +11,7 @@ Welcome to the **BBW Recommendation Tool**! This application integrates AI-power
 1. **OpenAI API Key**  
    Follow this guide to obtain an OpenAI API key:  
    [How to Get Your Own OpenAI API Key](https://medium.com/@lorenzozar/how-to-get-your-own-openai-api-key-f4d44e60c327#:~:text=Create%20A%20New%20API%20Key,button%20Create%20new%20secret%20key.&text=In%20the%20next%20pop%2C%20just,API%20key%20for%20different%20things.)  
-   > **Note:** Most structured queries and visualizations work without an API key, so feel free to explore quickly without one.  
+   > **Note:** Most structured queries and all visualizations work without an API key, so feel free to explore quickly without one.  
 
 2. **Update API Key**  
    Insert your new key in `chatbot_logic.py` at the following line:  
