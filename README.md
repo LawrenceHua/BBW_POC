@@ -1,4 +1,4 @@
-```markdown
+
 # BBW Recommendation Tool
 
 Welcome to the **BBW Recommendation Tool**! This application integrates AI-powered insights and interactive visualizations to rank suppliers and enhance decision-making through a custom UI.
