@@ -55,8 +55,7 @@ At the bottom of the screen, the **Chatbot Button** provides a "custom PowerBI d
 ---
 
 ## **Capabilities**
-This tool showcases the potential of integrating **PowerBI + Azure AI** (and in the future, **PowerBI + Azure ML**) to create the perfect dashboard for BBW's needs.  
-
+This tool showcases the potential of integrating **PowerBI + Azure AI** (and in the future, **PowerBI + Azure ML**) to create the perfect dashboard for BBW's needs. 
 - **Supplier Scoring**  
 - **Interactive Visualizations**  
 - **AI-Driven Recommendations**
