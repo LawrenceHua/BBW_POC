@@ -1,3 +1,7 @@
+Check out the presentation!
+https://docs.google.com/presentation/d/11ra52z6dD9aJTNN-tIljvIGsqG00M90KvL8dKocIOrE/edit?usp=sharing
+
+
 
 # BBW Recommendation Tool
 
